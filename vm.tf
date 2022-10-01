@@ -34,4 +34,13 @@ data "template_file" "nginx" {
     ufw_allow_nginx = "Nginx HTTP"
   }
 }
+resource "google_compute_firewall" "default" {
+  name    = "flask-app-firewall"
+  network = "default"
 
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+  source_tags = ["default"]
+}

@@ -8,9 +8,9 @@ resource "google_compute_instance" "vm" {
   name         = var.name
   machine_type = var.machine_type
   zone         = var.zone
-  tags         = ["http-server"]
-  source_tags  = ["foo"]
-  target_tags  = ["web"]
+  tags         = ["http-server","foo", "web"]
+  #source_tags  = ["foo"]
+  #target_tags  = ["web"]
   labels       = var.labels
 
   boot_disk {

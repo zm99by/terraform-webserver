@@ -3,6 +3,14 @@ data "google_compute_image" "ubuntu" {
   project = "ubuntu-os-cloud"
 }
 
+data "template_file" "nginx" {
+  template = file("${path.module}/template/install_nginx.tpl")
+
+  vars = {
+    ufw_allow_nginx = "Nginx HTTP"
+  }
+}
+
 # Creates a GCP VM Instance.  Metadata Startup script install the Nginx webserver.
 resource "google_compute_instance" "vm" {
   name         = var.name
@@ -29,23 +37,24 @@ resource "google_compute_instance" "vm" {
   metadata_startup_script = data.template_file.nginx.rendered
 }
 
-data "template_file" "nginx" {
-  template = file("${path.module}/template/install_nginx.tpl")
+resource "google_compute_instance" "web" {
+  name         = "webserver"
+  machine_type = "f1-micro"
 
-  vars = {
-    ufw_allow_nginx = "Nginx HTTP"
-  }
-}
+  tags = ["http-server"]
 
-resource "google_compute_firewall" "rules" {
-  network     = "default"
-  description = "Creates firewall rule targeting tagged instances"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "8080", "1000-2000"]
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
   }
 
-  source_tags = ["foo"]
-  target_tags = ["web"]
-}
+  metadata_startup_script = data.template_file.nginx.rendered
+
+  network_interface {
+    network = "default"
+    access_config {
+
+    }
+
+  }

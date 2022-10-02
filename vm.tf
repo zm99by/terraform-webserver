@@ -9,6 +9,8 @@ resource "google_compute_instance" "vm" {
   machine_type = var.machine_type
   zone         = var.zone
   tags         = ["http-server"]
+  source_tags  = ["foo"]
+  target_tags  = ["web"]
   labels       = var.labels
 
   boot_disk {
@@ -34,13 +36,16 @@ data "template_file" "nginx" {
     ufw_allow_nginx = "Nginx HTTP"
   }
 }
-resource "google_compute_firewall" "default" {
-  name    = "flask-app-firewall"
-  network = "default"
+
+resource "google_compute_firewall" "rules" {
+  network     = "default"
+  description = "Creates firewall rule targeting tagged instances"
 
   allow {
     protocol = "tcp"
-    ports    = ["8080"]
+    ports    = ["80", "8080", "1000-2000"]
   }
-  source_tags = ["default"]
+
+  source_tags = ["foo"]
+  target_tags = ["web"]
 }

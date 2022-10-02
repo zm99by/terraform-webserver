@@ -39,7 +39,8 @@ resource "google_compute_instance" "vm" {
 
 resource "google_compute_instance" "web" {
   name         = "webserver"
-  machine_type = "f1-micro"
+  zone         = var.zone
+  machine_type = var.machine_type
 
   tags = ["http-server"]
 

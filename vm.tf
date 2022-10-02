@@ -16,7 +16,7 @@ resource "google_compute_instance" "vm" {
   name         = var.name
   machine_type = var.machine_type
   zone         = var.zone
-  tags         = ["http-server", "https-server"]
+  tags         = ["http-server", "web"]
   labels       = var.labels
 
   boot_disk {
@@ -33,4 +33,24 @@ resource "google_compute_instance" "vm" {
   }
 
   metadata_startup_script = data.template_file.nginx.rendered
+}
+
+resource "google_compute_firewall" "default" {
+  name    = "test-firewall"
+  network = google_compute_network.default.name
+
+  allow {
+    protocol = "icmp"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "8080", "1000-2000"]
+  }
+
+  source_tags = ["web"]
+}
+
+resource "google_compute_network" "default" {
+  name = "default"
 }
